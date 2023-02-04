@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Random 3D Model</title>
+    <script src="src/three.min.js"></script>
+    <script src="src/GLTFLoader.js"></script>
+    <script src="src/OrbitControls.js"></script>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        // Initializing Three with Defaults
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Add lighting to the scene
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(1, 1, 1);
+        scene.add(light);
+        const ambientLight = new THREE.AmbientLight(0xffffff,.5);
+        scene.add(ambientLight);
+
+        // Load a random model between house_type1.glb and house_type21.glb
+        const loader = new THREE.GLTFLoader();
+        const modelNumber = Math.floor(Math.random() * 21) + 1;
+        const modelName = `house_type${modelNumber}.glb`;
+        loader.load(`models/${modelName}`, function (gltf) {
+            let house = gltf.scene;
+             house.traverse(function (child) {
+                if (child.isMesh) {
+                    child.material.metalness = 0;
+                }
+            });
+            scene.add(house);
+        });
+
+        let random = THREE.Math.degToRad(Math.random() * 5);
+        camera.position.set(0,0.5,2.5);
+        camera.rotation.set(-(random),0,0)
+
+        // Render the scene
+        function render() {
+            requestAnimationFrame(render);
+            renderer.render(scene, camera);
+        }
+
+        render();
+
+        window.addEventListener('resize', function () {
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.render(scene, camera);
+            });
+
+
+    </script>
+</body>
+
+</html>
